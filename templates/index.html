@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tools for a Bright Educational Future</title>
+    <meta name="description" content="AI-powered question generator for educational PDFs. Upload, generate, and practice with smart study tools.">
+    <meta name="keywords" content="AI education, question generator, PDF study tool, smart learning">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="bg-elements">
+    </div>
+
+    <main class="container">
+        <header>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+            </div>
+        </header>
+
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1>Smart Tools for <br>a Bright Educational <span class="future-container">Future<img src="{{ url_for('static', filename='images/idea.png') }}" alt="Idea" class="idea-lamp"></span></h1>
+                <h2>Learn Smarter. Dream Bigger. Achieve More.</h2>
+                <button class="primary-button" onclick="window.location.href='{{ url_for('upload_page') }}'">Start Learning Now</button>
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='images/student.png') }}" alt="Student with books and globe">
+            </div>
+        </div>
+
+        <section class="journey-section">
+            <h2 class="section-heading">
+                <img src="{{ url_for('static', filename='images/earth.png') }}" alt="Globe">
+                Your Journey, Step-by-Step
+            </h2>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='images/upload.png') }}" alt="Upload PDF">
+                    </div>
+                    <div class="text-box">
+                        <div class="number">1</div>
+                        <h3>Upload Your PDF</h3>
+                        <p>Choose and upload your study material in seconds.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='images/ai.png') }}" alt="AI Generates Questions">
+                    </div>
+                    <div class="text-box">
+                        <div class="number">2</div>
+                        <h3>AI Generates Questions</h3>
+                        <p>Smart AI instantly creates customized questions for you.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='images/study.png') }}" alt="Start Studying">
+                    </div>
+                    <div class="text-box">
+                        <div class="number">3</div>
+                        <h3>Start Studying</h3>
+                        <p>Practice, learn, and master your subjects with ease!</p>
+                    </div>
+                </div>
+            </div>
+            <img class="decorative-arrow right-top" src="{{ url_for('static', filename='images/blueArrow.png') }}" alt="Arrow">
+        </section>
+
+        <section class="audience-section">
+            <div class="section-header">
+                <h2 class="section-heading">Who It's For</h2>
+                <img class="decorative-arrow left-top-curve" src="{{ url_for('static', filename='images/orgArrow.png') }}" alt="Arrow">
+                <img class="decorative-planet" src="{{ url_for('static', filename='images/planet.png') }}" alt="Planet">
+            </div>
+
+            <div class="audience-container">
+                <div class="audience-item">
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='images/student1.png') }}" alt="Student studying">
+                    </div>
+                    <div class="text-box">
+                        <h3>For Students</h3>
+                        <p>Practice smarter with personalized questions, track your progress, and prepare confidently for exams.</p>
+                    </div>
+                </div>
+                <div class="audience-item">
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='images/parent.png') }}" alt="Parent and child">
+                    </div>
+                    <div class="text-box">
+                        <h3>For Parents</h3>
+                        <p>Support your child's learning journey by reviewing custom-made quizzes and helping them revise effectively.</p>
+                    </div>
+                </div>
+                <div class="audience-item">
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='images/teacher.png') }}" alt="Teacher">
+                    </div>
+                    <div class="text-box">
+                        <h3>For Teachers</h3>
+                        <p>Easily generate quizzes, homework, and practice tests to enhance classroom learning and save preparation time.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

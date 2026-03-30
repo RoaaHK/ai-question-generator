@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Questions - {{ filename }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/questions.css') }}">
+</head>
+<body>
+    <main class="content-container">
+        <div class="page-header">
+            <h1>Generated Questions</h1>
+            <div class="filename-container">
+                <span class="filename-label">File:</span>
+                <span class="filename-text" title="{{ filename }}">{{ filename }}</span>
+            </div>
+        </div>
+
+        {% if no_difficulty_match %}
+        <div class="alert alert-warning" id="no-difficulty-alert" role="alert">
+            <p>No questions found with "{{ requested_difficulty }}" difficulty. Try selecting "All Difficulties" or a different difficulty level.</p>
+        </div>
+        {% endif %}
+
+        <div class="question-controls">
+            <form method="GET" class="controls-form">
+                <div class="control-group">
+                    <label for="max">Show:</label>
+                    <input type="number" name="max" id="max"
+                           value="{{ max_questions }}"
+                           min="1" max="35"
+                           placeholder="Number of questions">
+                    <button type="submit" class="apply-btn">Apply</button>
+                </div>
+
+                <div class="control-group">
+                    <label for="difficulty" class="difficulty-label">Difficulty:</label>
+                    <select name="difficulty" id="difficulty" onchange="this.form.submit()">
+                        <option value="">All Difficulties</option>
+                        <option value="easy" {% if request.args.get('difficulty') == 'easy' %}selected{% endif %}>Easy Only</option>
+                        <option value="medium" {% if request.args.get('difficulty') == 'medium' %}selected{% endif %}>Medium Only</option>
+                        <option value="hard" {% if request.args.get('difficulty') == 'hard' %}selected{% endif %}>Hard Only</option>
+                    </select>
+                </div>
+            </form>
+
+            <div class="question-info">
+                <div class="question-count-section">
+                    <span class="showing-count">Showing {{ showing_count }} of {{ total_available }} questions</span>
+                    {% if showing_count < total_available %}
+                        <span class="more-available">({{ total_available - showing_count }} more available)</span>
+                    {% endif %}
+                </div>
+                {% if session_id and current_session %}
+                    <a href="{{ url_for('questions_by_session', session_id=session_id, max=total_available) }}" class="view-all-btn">
+                        View All Question Sets for This File
+                    </a>
+                {% else %}
+                    <a href="?max={{ total_available }}" class="view-all-btn">
+                        View All Question Sets for This File
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="show-chunks-toggle">
+            <input type="checkbox" id="show-chunks-toggle">
+            <label for="show-chunks-toggle">Show Source Text</label>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert" role="alert">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="quiz-mode">
+            {% if session_id %}
+                <a href="{{ url_for('quiz_by_session', session_id=session_id) }}" class="quiz-link">Start Quiz Mode</a>
+            {% else %}
+                <a href="{{ url_for('quiz', file_name=all_questions[0].questions[0].file_name) }}" class="quiz-link">Start Quiz Mode</a>
+            {% endif %}
+        </section>
+
+        {% if not all_questions and not no_difficulty_match %}
+        <div class="no-questions-message">
+            <h3>No questions found</h3>
+            <p>Current filters may be too restrictive. Try:</p>
+            <ul>
+                <li>Selecting "All Difficulties"</li>
+                <li>Increasing the number of questions</li>
+                <li>Generating more questions for this file</li>
+            </ul>
+            <p><strong>Available:</strong> {{ total_available }} total questions in database</p>
+        </div>
+        {% endif %}
+
+        {% for chunk in all_questions %}
+            <article class="question-set">
+                <h2>Question Set {{ chunk.chunk_id }}</h2>
+
+                <section class="chunk-section hidden">
+                    <h3>Source Text:</h3>
+                    <div class="chunk-text">{{ chunk.chunk_text }}</div>
+                </section>
+
+                <section class="question-text">
+                    {% for question in chunk.questions %}
+                        <div class="question-item">
+                            <p class="question">
+                                {{ loop.index }}. [{{ question.question_type|replace('_', ' ')|title }}]
+                                {% if question.get('difficulty') %}
+                                    <span class="difficulty-badge difficulty-{{ question.difficulty }}">{{ question.difficulty }}</span>
+                                {% endif %}
+                                <span class="question-content">{{ question.question_text or question.question }}</span>
+                            </p>
+
+                            {% if question.question_type == 'mcq' and question.options %}
+                                <div class="mcq-options">
+                                    {% for option in question.options %}
+                                        <p class="option">{{ ['A', 'B', 'C', 'D'][loop.index0] }}) {{ option }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <div class="answer-section">
+                                <button class="toggle-btn">
+                                    <span class="toggle-icon"></span> Show Answer
+                                </button>
+                                <p class="answer hidden">Answer: {{ question.correct_answer or question.answer }}</p>
+                                {% if question.explanation %}
+                                    <p class="explanation hidden">Explanation: {{ question.explanation }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </section>
+
+                {% if session_id %}
+                <form action="{{ url_for('regenerate_chunk_questions', session_id=session_id, chunk_id=chunk.chunk_id) }}" method="post" class="regenerate-form">
+                {% else %}
+                <form action="{{ url_for('regenerate', file_name=chunk.questions[0].file_name, chunk_id=chunk.chunk_id) }}" method="post" class="regenerate-form">
+                {% endif %}
+                    <input type="hidden" name="questions_per_type" value="3">
+                    {% for type in question_types %}
+                        <input type="hidden" name="question_types" value="{{ type }}">
+                    {% endfor %}
+                    <button type="submit" class="regenerate-btn">Regenerate this set</button>
+                </form>
+            </article>
+        {% endfor %}
+
+        <section class="download-options">
+            {% if session_id %}
+                <a href="{{ url_for('download_session', session_id=session_id, filetype='txt') }}" class="download-link">Download .txt File</a>
+                <a href="{{ url_for('download_session', session_id=session_id, filetype='docx') }}" class="download-link">Download .docx File</a>
+            {% else %}
+                <a href="{{ url_for('download', file_name=all_questions[0].questions[0].file_name, filetype='txt') }}" class="download-link">Download .txt File</a>
+                <a href="{{ url_for('download', file_name=all_questions[0].questions[0].file_name, filetype='docx') }}" class="download-link">Download .docx File</a>
+            {% endif %}
+        </section>
+
+        <nav class="navigation-links">
+            <a href="{{ url_for('index') }}" class="back-link">Back to Home</a>
+        </nav>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/questions.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload PDF</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h1>upload your pdf</h1>
+        <form action="/process" method="post" enctype="multipart/form-data" id="uploadForm">
+            <div class="file-input-container">
+                <input type="file" name="pdf" id="file-input" accept=".pdf" required>
+                <div id="file-name-display">No file chosen</div>
+                <div id="file-error" class="error-message"></div>
+            </div>
+
+            <div class="box">
+                <h3>questions type <span class="required">*</span></h3>
+                <div class="option">
+                    <label class="switch">
+                        <input type="checkbox" name="question_types" value="mcq">
+                        <span class="slider"></span>
+                    </label>
+                    <label>multiple choice</label>
+                </div>
+                <div class="option">
+                    <label class="switch">
+                        <input type="checkbox" name="question_types" value="true_false">
+                        <span class="slider"></span>
+                    </label>
+                    <label>true/false</label>
+                </div>
+                <div class="option">
+                    <label class="switch">
+                        <input type="checkbox" name="question_types" value="short_answer">
+                        <span class="slider"></span>
+                    </label>
+                    <label>short answer</label>
+                </div>
+                <div id="question-type-error" class="error-message"></div>
+            </div>
+
+            <div class="box">
+                <div class="inline-row">
+                    <label for="questions_per_chunk">number of questions <span class="required">*</span></label>
+                    <input type="number" name="questions_per_chunk" id="questions_per_chunk" placeholder="e.g. 5" min="1" max="35" required>                    </div>
+            </div>
+
+            <div class="box">
+                <div class="inline-row">
+                    <label for="difficulty">Difficulty Level</label>
+                    <select name="difficulty" id="difficulty">
+                        <option value="mixed">Mixed (Easy, Medium, Hard)</option>
+                        <option value="easy">Easy Questions Only</option>
+                        <option value="medium">Medium Questions Only</option>
+                        <option value="hard">Hard Questions Only</option>
+                    </select>
+                </div>
+            </div>
+            <div class="box">
+                <div class="option">
+                    <label class="switch">
+                        <input type="checkbox" id="all_pages" name="all_pages">
+                        <span class="slider"></span>
+                    </label>
+                    <label>all pages</label>
+                </div>
+                <div class="inline-row">
+                    <label for="from_page">From</label>
+                    <input type="number" name="from_page" id="from_page" min="1">
+                    <label for="to_page">To</label>
+                    <input type="number" name="to_page" id="to_page" min="1">
+                </div>
+                <div id="page-range-error" class="error-message"></div>
+            </div>
+
+            <button type="submit">generate</button>
+        </form>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>

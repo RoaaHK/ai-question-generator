@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Mode - {{ filename }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/questions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+</head>
+<body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Processing your request...</p>
+    </div>
+
+    <div class="content-container">
+        <div class="quiz-header">
+            <div>
+                <h1>Quiz Mode</h1>
+                <div class="session-info">{{ filename }}</div>
+            </div>
+            <div class="quiz-progress">
+                Question <span id="current-question">1</span> of <span id="total-questions">{{ questions|length }}</span>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="quiz-filters">
+            <h3>Question Types</h3>
+            <div class="filter-options">
+                {% if session_id %}
+                <form id="filter-form" action="{{ url_for('quiz_by_session', session_id=session_id) }}" method="get">
+                {% else %}
+                <form id="filter-form" action="{{ url_for('quiz', file_name=file_name) }}" method="get">
+                {% endif %}
+                    {% for type in ['mcq', 'true_false', 'short_answer'] %}
+                        <label class="filter-option {% if type in question_types %}active{% endif %}">
+                            <input type="checkbox" name="types" value="{{ type }}"
+                                   {% if type in question_types %}checked{% endif %}>
+                            {{ type|replace('_', ' ')|title }}
+                        </label>
+                    {% endfor %}
+                    <input type="number" name="total" min="1" max="35"
+                           value="{{ default_num if default_num else questions|length }}"
+                           placeholder="Number of questions">
+                    <button type="submit" class="quiz-button">Apply</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="quiz-container">
+            {% for question in questions %}
+                <div class="quiz-question {% if loop.index == 1 %}active{% endif %}"
+                     data-index="{{ loop.index }}"
+                     data-type="{{ question.question_type }}"
+                     data-answer="{{ question.correct_answer or question.answer }}"
+                     data-question-id="{{ question._id or question.question_id or question.get('question_id', '') }}">
+
+                    <h3>
+                        {{ loop.index }}. [{{ question.question_type|replace('_', ' ')|title }}]
+                        {% if question.get('difficulty') %}
+                            <span class="difficulty-badge difficulty-{{ question.difficulty }}">{{ question.difficulty }}</span>
+                        {% endif %}
+                    </h3>
+
+                    <p class="question-text">{{ question.question_text or question.question }}</p>
+
+                    {% if question.question_type == 'mcq' %}
+                        <div class="mcq-options">
+                            {% for option in question.options %}
+                                <div class="mcq-option" data-value="{{ ['A', 'B', 'C', 'D'][loop.index0] }}">
+                                    {{ ['A', 'B', 'C', 'D'][loop.index0] }}) {{ option }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    {% elif question.question_type == 'true_false' %}
+                        <div class="tf-options">
+                            <div class="tf-option" data-value="True">True</div>
+                            <div class="tf-option" data-value="False">False</div>
+                        </div>
+
+                    {% else %}
+                        <textarea class="user-answer"
+                                  placeholder="Type your answer here..."
+                                  rows="4"></textarea>
+                    {% endif %}
+
+                    <div class="feedback"></div>
+
+                    <div class="correct-answer">
+                        <h4>Correct Answer:</h4>
+                        <p>{{ question.correct_answer or question.answer }}</p>
+                        {% if question.explanation %}
+                            <p><strong>Explanation:</strong> {{ question.explanation }}</p>
+                        {% endif %}
+                    </div>
+
+                    <button class="check-answer quiz-button">Check Answer</button>
+                </div>
+            {% endfor %}
+
+            <div class="quiz-controls">
+                <button id="prev-button" class="quiz-button" disabled>Previous</button>
+                <button id="next-button" class="quiz-button">Next</button>
+            </div>
+        </div>
+
+        <div class="quiz-results">
+            <h2>Quiz Complete!</h2>
+
+            <div class="quiz-score">
+                Score: <span id="score">0</span> / <span id="total">{{ questions|length }}</span>
+            </div>
+
+            <p>You've completed the quiz. Here's how you did:</p>
+
+            <div id="results-breakdown"></div>
+
+            <div class="quiz-results-actions">
+                <button id="retry-button" class="quiz-button">Try Again</button>
+                {% if session_id %}
+                    <a href="{{ url_for('questions_by_session', session_id=session_id) }}" class="quiz-button">Back to Questions</a>
+                    <a href="{{ url_for('quiz_by_session', session_id=session_id) }}" class="quiz-button">New Quiz</a>
+                {% else %}
+                    <a href="{{ url_for('questions') }}" class="quiz-button">Back to Questions</a>
+                    <a href="{{ url_for('quiz', file_name=file_name) }}" class="quiz-button">New Quiz</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+</body>
+</html>
