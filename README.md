@@ -45,7 +45,7 @@ The system processes PDF textbooks and produces questions that closely match hum
 
 1. Clone the repository
 ```bash
-git clone https://github.com/RoaaHK/ai-science-question-generator.git
+git clone https://github.com/RoaaHK/ai-question-generator.git
 cd ai-science-question-generator
 ```
 
